@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#C85A32">
+  <meta name="description" content="Artivio 3D Marketplace - Plataforma móvil para emprendedores y compradores con IA y Realidad Aumentada / Visor 3D.">
+  <title>Artivio 3D Marketplace | Artesanía, IA y Realidad Aumentada</title>
+
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Model Viewer for 3D & WebAR -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+
+  <!-- Three.js CDN for procedural 3D & AR Camera fallback simulation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Device Frame Wrapper for Desktop/Tablet Simulation (Mobile-First Experience) -->
+  <div class="app-layout-wrapper">
+    
+    <!-- Top Floating Toolbar (Mode Switcher & Device Toggle) -->
+    <header class="top-control-bar">
+      <div class="brand-badge">
+        <div class="logo-icon-wrap">
+          <i data-lucide="sparkles"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">ARTIVIO</span>
+          <span class="brand-subtitle">3D & AR Marketplace</span>
+        </div>
+      </div>
+
+      <!-- Quick Role Toggle: Comprador / Emprendedor -->
+      <div class="role-switcher" id="roleSwitcher">
+        <button class="role-btn active" id="btnRoleBuyer" data-role="buyer">
+          <i data-lucide="shopping-bag"></i>
+          <span>Comprador</span>
+        </button>
+        <button class="role-btn" id="btnRoleSeller" data-role="seller">
+          <i data-lucide="store"></i>
+          <span>Emprendedor</span>
+        </button>
+      </div>
+
+      <!-- Mobile Frame Size Switcher for Desktop Preview -->
+      <div class="desktop-controls">
+        <button class="icon-toggle-btn" id="btnToggleFrame" title="Alternar marco de smartphone">
+          <i data-lucide="smartphone"></i>
+        </button>
+        <button class="cart-quick-btn" id="btnHeaderCart" title="Ver Carrito">
+          <i data-lucide="shopping-cart"></i>
+          <span class="cart-badge" id="headerCartCount">0</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Mobile Device Container -->
+    <div class="phone-viewport-container" id="phoneContainer">
+      <div class="smartphone-frame">
+        <!-- Phone Speaker & Camera Notch -->
+        <div class="phone-notch">
+          <div class="notch-speaker"></div>
+          <div class="notch-camera"></div>
+        </div>
+
+        <!-- Phone Status Bar -->
+        <div class="phone-status-bar">
+          <span class="status-time" id="statusClock">12:45</span>
+          <div class="status-icons">
+            <i data-lucide="signal" class="status-icon"></i>
+            <i data-lucide="wifi" class="status-icon"></i>
+            <i data-lucide="battery-charging" class="status-icon"></i>
+          </div>
+        </div>
+
+        <!-- Dynamic Main App Content Screen -->
+        <main class="app-screen" id="appScreen">
+
+          <!-- ============================================== -->
+          <!-- VIEW 1: BUYER MARKETPLACE (CATÁLOGO MÓVIL) -->
+          <!-- ============================================== -->
+          <section class="view-section active" id="viewMarketplace">
+            <!-- Header Search & Greeting -->
+            <div class="market-header">
+              <div class="welcome-row">
+                <div class="user-greeting">
+                  <span class="greeting-sub">Descubre diseño artesanal</span>
+                  <h1 class="greeting-main">Hecho a mano, vivido en 3D</h1>
+                </div>
+                <button class="avatar-bubble" id="btnProfileQuick">
+                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80" alt="Usuario" />
+                </button>
+              </div>
+
+              <!-- Search Bar with AI Prompt shortcut -->
+              <div class="search-box">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Buscar velas, cerámica, lámparas, madera..." />
+                <button class="search-filter-btn" id="btnSearchVoice" title="Búsqueda Inteligente">
+                  <i data-lucide="sparkles"></i>
+                </button>
+              </div>
+
+              <!-- Category Pills -->
+              <div class="categories-scroll" id="categoriesContainer">
+                <button class="cat-pill active" data-category="all">✨ Todos</button>
+                <button class="cat-pill" data-category="velas">🕯️ Velas</button>
+                <button class="cat-pill" data-category="ceramica">🏺 Cerámica</button>
+                <button class="cat-pill" data-category="decoracion">🌿 Decoración</button>
+                <button class="cat-pill" data-category="iluminacion">💡 Iluminación</button>
+                <button class="cat-pill" data-category="madera">🪵 Madera</button>
+              </div>
+            </div>
+
+            <!-- AR Experience Banner -->
+            <div class="ar-promo-card" id="bannerArPromo">
+              <div class="promo-content">
+                <span class="promo-tag"><i data-lucide="box"></i> Realidad Aumentada</span>
+                <h3>Prueba objetos en tu sala antes de comprar</h3>
+                <p>Usa la cámara de tu móvil para ver el tamaño y textura exacta 1:1.</p>
+                <button class="btn-promo-action" id="btnTryArDemo">
+                  <i data-lucide="camera"></i> Explorar en AR
+                </button>
+              </div>
+              <div class="promo-graphic">
+                <div class="floating-3d-badge">
+                  <i data-lucide="cuboid"></i>
+                  <span>3D PBR</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Products Grid Section -->
+            <div class="section-title-row">
+              <h2>Catálogo de Creadores</h2>
+              <span class="results-count" id="productsCount">6 productos</span>
+            </div>
+
+            <div class="products-grid" id="productsGrid">
+              <!-- Rendered via JS -->
+            </div>
+          </section>
+
+
+          <!-- ============================================== -->
+          <!-- VIEW 2: PRODUCT DETAIL WITH 3D VIEWER & AR -->
+          <!-- ============================================== -->
+          <section class="view-section" id="viewProductDetail">
+            <!-- Top Sticky Navigation -->
+            <div class="detail-top-nav">
+              <button class="back-circle-btn" id="btnBackFromDetail">
+                <i data-lucide="arrow-left"></i>
+              </button>
+              <h2 class="detail-top-title" id="detailNavTitle">Detalle del Producto</h2>
+              <div class="nav-actions-right">
+                <button class="action-circle-btn" id="btnShareProduct" title="Compartir">
+                  <i data-lucide="share-2"></i>
+                </button>
+                <button class="action-circle-btn" id="btnFavProduct" title="Favoritos">
+                  <i data-lucide="heart"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- 3D / Photo Interactive Hero Stage -->
+            <div class="viewer-stage-container">
+              <!-- Switch Tabs (Foto / Visor 3D Interactivo) -->
+              <div class="viewer-mode-tabs">
+                <button class="v-tab active" id="tabMode3D">
+                  <i data-lucide="box"></i> Visor 3D
+                </button>
+                <button class="v-tab" id="tabModePhoto">
+                  <i data-lucide="image"></i> Galería HD
+                </button>
+              </div>
+
+              <!-- 3D Model Viewer Container -->
+              <div class="model-viewer-wrapper" id="modelViewerWrapper">
+                <model-viewer
+                  id="artivioViewer"
+                  src=""
+                  alt="Modelo 3D Artesanal"
+                  ar
+                  ar-modes="webxr scene-viewer quick-look"
+                  camera-controls
+                  touch-action="pan-y"
+                  auto-rotate
+                  auto-rotate-delay="1000"
+                  rotation-per-second="20deg"
+                  shadow-intensity="1.6"
+                  shadow-softness="0.8"
+                  environment-image="neutral"
+                  exposure="1.0"
+                  poster=""
+                  loading="lazy">
+                  
+                  <!-- Custom Loading Bar for 3D -->
+                  <div class="progress-bar hide" slot="progress-bar">
+                    <div class="update-bar"></div>
+                  </div>
+
+                  <!-- Hotspot Annotations for Handcrafted Details -->
+                  <button class="view-hotspot" slot="hotspot-material" data-position="0 0.1 0.1" data-normal="0 1 0" id="hotspot1">
+                    <div class="hotspot-annotation">
+                      <strong id="hotspotMatTitle">Cera de Soja 100%</strong>
+                      <span>Aroma artesanal extraído en frío</span>
+                    </div>
+                  </button>
+
+                  <button class="view-hotspot" slot="hotspot-finish" data-position="0 -0.05 0.12" data-normal="0 0 1" id="hotspot2">
+                    <div class="hotspot-annotation">
+                      <strong id="hotspotFinishTitle">Acabado Texturizado</strong>
+                      <span>Modelado y pulido a mano</span>
+                    </div>
+                  </button>
+
+                  <!-- In-Viewer Controls Overlay -->
+                  <div class="viewer-overlay-controls">
+                    <button class="v-control-btn" id="btnResetCamera" title="Restablecer Vista">
+                      <i data-lucide="rotate-ccw"></i>
+                    </button>
+                    <button class="v-control-btn" id="btnToggleRotate" title="Pausar Rotación">
+                      <i data-lucide="pause"></i>
+                    </button>
+                    <button class="v-control-btn" id="btnToggleDimensions" title="Ver Medidas">
+                      <i data-lucide="ruler"></i>
+                    </button>
+                  </div>
+                </model-viewer>
+
+                <!-- Three.js Fallback Canvas (if model-viewer GLB fails or custom procedural 3D is active) -->
+                <div class="three-fallback-container hidden" id="threeFallback">
+                  <canvas id="threeCanvas"></canvas>
+                  <div class="three-overlay-hint">
+                    <i data-lucide="move-3d"></i> Arrastra para rotar en 360°
+                  </div>
+                </div>
+              </div>
+
+              <!-- Photo Gallery View (Hidden by default) -->
+              <div class="photo-gallery-wrapper hidden" id="photoGalleryWrapper">
+                <img id="detailMainImage" src="" alt="Producto" class="gallery-hero-img" />
+              </div>
+
+              <!-- 3D Dimensions Indicator Overlay -->
+              <div class="dimensions-badge" id="dimensionsBadge">
+                <i data-lucide="maximize-2"></i>
+                <span id="detailDimensionsText">14cm × 9cm × 9cm (Escala Real 1:1)</span>
+              </div>
+            </div>
+
+            <!-- Product Core Info & Creator -->
+            <div class="product-info-sheet">
+              <div class="creator-strip">
+                <img id="detailCreatorAvatar" src="" alt="Artesano" class="creator-avatar-img">
+                <div class="creator-meta">
+                  <div class="creator-name-row">
+                    <h4 id="detailCreatorName">Estudio Terracota</h4>
+                    <span class="verified-badge" title="Artesano Verificado"><i data-lucide="check-circle-2"></i></span>
+                  </div>
+                  <span class="creator-location" id="detailCreatorLocation"><i data-lucide="map-pin"></i> Oaxaca, México</span>
+                </div>
+                <button class="btn-chat-creator" id="btnContactSeller">
+                  <i data-lucide="message-circle"></i>
+                </button>
+              </div>
+
+              <div class="title-price-block">
+                <div class="tag-badges" id="detailTags">
+                  <span class="tag-pill ai-tag"><i data-lucide="sparkles"></i> 3D con IA</span>
+                  <span class="tag-pill eco-tag"><i data-lucide="leaf"></i> Eco-Friendly</span>
+                </div>
+                <h1 class="product-full-title" id="detailTitle">Vela Artesanal Lavanda & Sándalo</h1>
+                <div class="price-rating-row">
+                  <div class="price-box">
+                    <span class="currency">$</span>
+                    <span class="price-val" id="detailPrice">28.50</span>
+                    <span class="price-usd">USD</span>
+                  </div>
+                  <div class="rating-box">
+                    <i data-lucide="star" class="star-icon"></i>
+                    <span class="rating-num" id="detailRating">4.9</span>
+                    <span class="rating-reviews" id="detailReviewsCount">(38 reseñas)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Materials & Specifications Accordion / Badges -->
+              <div class="specs-grid">
+                <div class="spec-card">
+                  <i data-lucide="layers"></i>
+                  <div class="spec-text">
+                    <span class="spec-label">Materiales</span>
+                    <strong id="detailMaterial">Cera de Soja & Aceites</strong>
+                  </div>
+                </div>
+                <div class="spec-card">
+                  <i data-lucide="clock"></i>
+                  <div class="spec-text">
+                    <span class="spec-label">Elaboración</span>
+                    <strong id="detailCraftTime">3 Días a mano</strong>
+                  </div>
+                </div>
+                <div class="spec-card">
+                  <i data-lucide="truck"></i>
+                  <div class="spec-text">
+                    <span class="spec-label">Envío</span>
+                    <strong>Empaque 100% reciclable</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Color / Texture Variant Switcher -->
+              <div class="variant-section">
+                <span class="variant-label">Variante de Acabado / Color:</span>
+                <div class="color-options" id="colorOptions">
+                  <button class="color-dot active" style="--c: #C85A32;" data-color="terracotta" title="Terracota"></button>
+                  <button class="color-dot" style="--c: #E8D8C8;" data-color="sand" title="Arena"></button>
+                  <button class="color-dot" style="--c: #4A6B53;" data-color="sage" title="Verde Salvia"></button>
+                  <button class="color-dot" style="--c: #2C3539;" data-color="slate" title="Pizarra"></button>
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div class="description-block">
+                <h3>Historia de la pieza</h3>
+                <p id="detailDescription">
+                  Moldeada individualmente en torno cerámico y vertida a mano con cera botánica de soja enriquecida con esencias naturales de lavanda silvestre y madera de sándalo. Cada pieza es irrepetible.
+                </p>
+              </div>
+
+              <!-- Real Customer Reviews Section with AR Photos -->
+              <div class="reviews-section">
+                <div class="reviews-header">
+                  <h3>Reseñas con Realidad Aumentada</h3>
+                  <span class="verified-label"><i data-lucide="shield-check"></i> Compradores reales</span>
+                </div>
+                <div class="review-item">
+                  <div class="review-top">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80" class="reviewer-img" alt="Mariana">
+                    <div class="reviewer-info">
+                      <strong>Mariana G.</strong>
+                      <div class="stars-mini">★★★★★</div>
+                    </div>
+                    <span class="review-date">Hace 2 días</span>
+                  </div>
+                  <p class="review-comment">"La probé con el botón AR sobre mi mesa de centro antes de comprarla y quedó exactamente igual a la vista en vivo. ¡El aroma es delicioso!"</p>
+                  <div class="review-ar-pill"><i data-lucide="box"></i> Comprobado con AR</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sticky Bottom Purchase & AR Action Bar -->
+            <div class="detail-floating-bar">
+              <button class="btn-ar-spotlight" id="btnLaunchAR">
+                <div class="ar-glow"></div>
+                <i data-lucide="scan"></i>
+                <div class="btn-ar-texts">
+                  <span class="ar-main-text">VER EN MI ESPACIO</span>
+                  <span class="ar-sub-text">Cámara 3D / Realidad Aumentada</span>
+                </div>
+              </button>
+
+              <button class="btn-add-cart" id="btnAddToCart">
+                <i data-lucide="shopping-bag"></i>
+                <span>Comprar</span>
+              </button>
+            </div>
+          </section>
+
+
+          <!-- ============================================== -->
+          <!-- VIEW 3: AR CAMERA EXPERIENCE (WEB AR SIMULATOR) -->
+          <!-- ============================================== -->
+          <section class="view-section" id="viewARCamera">
+            <div class="ar-camera-viewport" id="arCameraContainer">
+              <!-- Real Device Camera Video Feed -->
+              <video id="arVideoFeed" autoplay playsinline muted class="camera-stream"></video>
+              
+              <!-- Simulated Room Fallback Background (if camera disabled or testing) -->
+              <div class="ar-room-bg" id="arRoomFallback">
+                <div class="living-room-surface"></div>
+              </div>
+
+              <!-- AR 3D Interactive WebGL Overlay -->
+              <canvas id="arCanvasOverlay" class="ar-canvas-layer"></canvas>
+
+              <!-- AR HUD Overlays -->
+              <div class="ar-hud-top">
+                <button class="ar-hud-btn" id="btnCloseAR">
+                  <i data-lucide="x"></i>
+                </button>
+                <div class="ar-target-indicator">
+                  <i data-lucide="scan"></i>
+                  <span id="arTrackingStatus">Superficie detectada (1:1)</span>
+                </div>
+                <button class="ar-hud-btn" id="btnToggleCameraSource" title="Alternar Cámara / Escenario">
+                  <i data-lucide="switch-camera"></i>
+                </button>
+              </div>
+
+              <!-- AR Reticle Indicator for Placement -->
+              <div class="ar-reticle-ring" id="arReticle">
+                <div class="ring-pulse"></div>
+                <i data-lucide="plus"></i>
+              </div>
+
+              <!-- AR Interactive Placement Controls (Scale, Rotate, Light) -->
+              <div class="ar-bottom-controls">
+                <div class="ar-product-chip">
+                  <img id="arThumbImg" src="" alt="Miniatura">
+                  <div class="ar-chip-text">
+                    <strong id="arProductName">Vela Artesanal Lavanda</strong>
+                    <span>Dimensiones: 14cm alto</span>
+                  </div>
+                </div>
+
+                <div class="ar-actions-row">
+                  <button class="ar-action-btn" id="btnScaleDown" title="Reducir tamaño">
+                    <i data-lucide="minus"></i>
+                  </button>
+                  <button class="ar-action-btn primary-ar-btn" id="btnCaptureArPhoto" title="Tomar Foto con AR">
+                    <i data-lucide="aperture"></i>
+                  </button>
+                  <button class="ar-action-btn" id="btnScaleUp" title="Aumentar tamaño">
+                    <i data-lucide="plus"></i>
+                  </button>
+                  <button class="ar-action-btn" id="btnResetARPosition" title="Centrar">
+                    <i data-lucide="crosshair"></i>
+                  </button>
+                </div>
+                <p class="ar-gesture-tip">💡 Toca la pantalla para colocar • Arrastra para mover • Pellizca para escalar</p>
+              </div>
+            </div>
+          </section>
+
+
+          <!-- ============================================== -->
+          <!-- VIEW 4: SELLER DASHBOARD (PANEL EMPRENDEDOR) -->
+          <!-- ============================================== -->
+          <section class="view-section" id="viewSellerDashboard">
+            <div class="seller-header">
+              <div class="seller-banner">
+                <div class="seller-profile-summary">
+                  <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?w=160&auto=format&fit=crop&q=80" class="seller-brand-avatar" alt="Taller">
+                  <div class="seller-brand-info">
+                    <div class="brand-badge-pill">
+                      <i data-lucide="sparkles"></i> Creador Verificado
+                    </div>
+                    <h2>Taller Arcilla & Alma</h2>
+                    <p><i data-lucide="map-pin"></i> Guadalajara, Jalisco • Miembro desde 2024</p>
+                  </div>
+                </div>
+
+                <button class="btn-create-new-prod" id="btnQuickCreateProd">
+                  <i data-lucide="plus-circle"></i> Publicar con IA 3D
+                </button>
+              </div>
+
+              <!-- Quick Metrics Grid -->
+              <div class="metrics-grid">
+                <div class="metric-card">
+                  <div class="metric-icon metric-purple"><i data-lucide="box"></i></div>
+                  <div class="metric-data">
+                    <span class="metric-val" id="sellerMetricAR">1,480</span>
+                    <span class="metric-label">Vistas en AR</span>
+                  </div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-icon metric-green"><i data-lucide="trending-up"></i></div>
+                  <div class="metric-data">
+                    <span class="metric-val">$1,240</span>
+                    <span class="metric-label">Ventas del Mes</span>
+                  </div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-icon metric-orange"><i data-lucide="eye"></i></div>
+                  <div class="metric-data">
+                    <span class="metric-val">3,892</span>
+                    <span class="metric-label">Visitas 3D</span>
+                  </div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-icon metric-blue"><i data-lucide="star"></i></div>
+                  <div class="metric-data">
+                    <span class="metric-val">4.95</span>
+                    <span class="metric-label">Valoración</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Seller Products List Management -->
+            <div class="seller-catalog-section">
+              <div class="section-title-row">
+                <h3>Mis Productos Publicados</h3>
+                <span class="catalog-badge" id="sellerItemsCount">4 activos</span>
+              </div>
+
+              <div class="seller-items-list" id="sellerItemsList">
+                <!-- Populated dynamically via JS -->
+              </div>
+            </div>
+          </section>
+
+
+          <!-- ============================================== -->
+          <!-- VIEW 5: CREATE PRODUCT WITH AI 3D SCANNER -->
+          <!-- ============================================== -->
+          <section class="view-section" id="viewCreateProduct">
+            <div class="create-header">
+              <button class="back-circle-btn" id="btnBackFromCreate">
+                <i data-lucide="arrow-left"></i>
+              </button>
+              <h2>Publicar Nuevo Producto</h2>
+              <div class="ai-badge-header">
+                <i data-lucide="sparkles"></i> IA 3D Engine
+              </div>
+            </div>
+
+            <div class="create-form-content">
+              <!-- Step Progress Bar -->
+              <div class="step-indicator-row">
+                <div class="step-node active" id="stepNode1">
+                  <span class="step-circle">1</span>
+                  <span class="step-label">Datos</span>
+                </div>
+                <div class="step-line" id="stepLine1"></div>
+                <div class="step-node" id="stepNode2">
+                  <span class="step-circle">2</span>
+                  <span class="step-label">Foto IA</span>
+                </div>
+                <div class="step-line" id="stepLine2"></div>
+                <div class="step-node" id="stepNode3">
+                  <span class="step-circle">3</span>
+                  <span class="step-label">Modelo 3D</span>
+                </div>
+              </div>
+
+              <!-- Form Step 1: Basic Information -->
+              <div class="form-step-container active" id="formStep1">
+                <div class="form-group">
+                  <label for="prodInputName">Nombre del producto *</label>
+                  <div class="input-icon-wrap">
+                    <i data-lucide="tag"></i>
+                    <input type="text" id="prodInputName" placeholder="Ej: Vela Artesanal Lavanda & Sándalo" value="Vela Artesanal Vainilla Bourbon">
+                  </div>
+                </div>
+
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label for="prodInputCategory">Categoría</label>
+                    <div class="input-icon-wrap">
+                      <i data-lucide="grid"></i>
+                      <select id="prodInputCategory">
+                        <option value="velas">Velas Aromáticas</option>
+                        <option value="ceramica">Cerámica y Barro</option>
+                        <option value="decoracion">Decoración y Hogar</option>
+                        <option value="iluminacion">Lámparas e Iluminación</option>
+                        <option value="madera">Artesanía en Madera</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prodInputPrice">Precio (USD) *</label>
+                    <div class="input-icon-wrap">
+                      <i data-lucide="dollar-sign"></i>
+                      <input type="number" id="prodInputPrice" placeholder="25.00" value="32.00" step="0.5">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="prodInputDesc">Descripción e Historia</label>
+                  <textarea id="prodInputDesc" rows="3" placeholder="Describe la técnica artesanal, inspiración y cuidado...">Vela de cera de soja 100% natural, vertida a mano en cuenco artesanal de arcilla terracota con mecha de madera que crepita suavemente.</textarea>
+                </div>
+
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label for="prodInputDimensions">Dimensiones reales</label>
+                    <input type="text" id="prodInputDimensions" placeholder="Ej: 12cm × 8cm × 8cm" value="13cm × 9cm × 9cm">
+                  </div>
+                  <div class="form-group">
+                    <label for="prodInputMaterial">Materiales</label>
+                    <input type="text" id="prodInputMaterial" placeholder="Ej: Cerámica, cera de soja" value="Cera de soja & Cerámica">
+                  </div>
+                </div>
+
+                <button class="btn-primary-action" id="btnGoToStep2">
+                  <span>Siguiente: Subir Foto & Generar 3D</span>
+                  <i data-lucide="arrow-right"></i>
+                </button>
+              </div>
+
+              <!-- Form Step 2: Photo Upload & AI Scan Preset -->
+              <div class="form-step-container hidden" id="formStep2">
+                <div class="photo-upload-box" id="dropZonePhoto">
+                  <input type="file" id="fileInputPhoto" accept="image/*" class="file-hidden">
+                  <div class="upload-inner" id="uploadPlaceholder">
+                    <div class="upload-icon-pulse">
+                      <i data-lucide="camera"></i>
+                    </div>
+                    <h4>Toma o sube una foto clara</h4>
+                    <p>La IA de Artivio reconstruirá la geometría 3D y la textura realista para WebAR.</p>
+                    <button type="button" class="btn-select-file" id="btnTriggerFile">
+                      <i data-lucide="upload"></i> Elegir de la Galería
+                    </button>
+                  </div>
+                  <div class="upload-preview-wrap hidden" id="uploadPreviewWrap">
+                    <img id="imgUploadPreview" src="" alt="Foto previa">
+                    <button class="btn-change-photo" id="btnChangePhoto" title="Cambiar foto">
+                      <i data-lucide="refresh-cw"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Quick Preset Demo Samples (To test the AI 3D generation instantly) -->
+                <div class="presets-section">
+                  <span class="preset-label">O prueba con fotos de muestra para generar 3D al instante:</span>
+                  <div class="preset-grid">
+                    <button class="preset-card active" data-preset="candle" data-name="Vela Cilíndrica Botánica" data-price="29.00" data-model="candle" data-img="https://images.unsplash.com/photo-1603006905003-be475563bc59?w=500&auto=format&fit=crop&q=80">
+                      <img src="https://images.unsplash.com/photo-1603006905003-be475563bc59?w=160&auto=format&fit=crop&q=80" alt="Vela">
+                      <span>🕯️ Vela Botánica</span>
+                    </button>
+                    <button class="preset-card" data-preset="ceramic" data-name="Taza de Cerámica Rústica" data-price="24.00" data-model="cup" data-img="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500&auto=format&fit=crop&q=80">
+                      <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=160&auto=format&fit=crop&q=80" alt="Cerámica">
+                      <span>🏺 Cuenco Rústico</span>
+                    </button>
+                    <button class="preset-card" data-preset="lamp" data-name="Lámpara Nórdica de Madera" data-price="68.00" data-model="lamp" data-img="https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500&auto=format&fit=crop&q=80">
+                      <img src="https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=160&auto=format&fit=crop&q=80" alt="Lámpara">
+                      <span>💡 Lámpara Minimal</span>
+                    </button>
+                    <button class="preset-card" data-preset="vase" data-name="Florero Orgánico Terracota" data-price="36.00" data-model="vase" data-img="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=500&auto=format&fit=crop&q=80">
+                      <img src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=160&auto=format&fit=crop&q=80" alt="Florero">
+                      <span>🌿 Florero Orgánico</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-btn-row">
+                  <button class="btn-secondary-action" id="btnBackToStep1">
+                    <i data-lucide="arrow-left"></i> Atrás
+                  </button>
+                  <button class="btn-ai-generate" id="btnStartAiProcess">
+                    <div class="spark-fx"></div>
+                    <i data-lucide="sparkles"></i>
+                    <span>Convertir Foto a 3D con IA</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Form Step 3: AI Processing Simulation & 3D Result Preview -->
+              <div class="form-step-container hidden" id="formStep3">
+                <!-- AI Conversion Pipeline Visualizer -->
+                <div class="ai-pipeline-card" id="aiPipelineCard">
+                  <div class="scanner-animation-box" id="scannerBox">
+                    <img id="aiSourcePhotoPreview" src="" alt="Procesando foto">
+                    <div class="laser-scanner-line" id="laserLine"></div>
+                    <div class="point-cloud-grid" id="pointGrid"></div>
+                    <div class="ai-status-pill" id="aiStatusPill">
+                      <span class="pulsing-dot"></span>
+                      <span id="aiStepText">Iniciando segmentación de bordes...</span>
+                    </div>
+                  </div>
+
+                  <!-- Progress Steps List -->
+                  <div class="pipeline-steps-list">
+                    <div class="pipeline-step-item in-progress" id="pStep1">
+                      <div class="p-icon"><i data-lucide="scan"></i></div>
+                      <div class="p-text">
+                        <strong>1. Detección de Contorno y Profundidad (NeRF)</strong>
+                        <span>Mapeo espacial de 360 puntos volumétricos</span>
+                      </div>
+                      <div class="p-check"><i data-lucide="check"></i></div>
+                    </div>
+                    <div class="pipeline-step-item pending" id="pStep2">
+                      <div class="p-icon"><i data-lucide="grid"></i></div>
+                      <div class="p-text">
+                        <strong>2. Generación de Malla Poligonal 3D</strong>
+                        <span>Construcción de topología optimizada para WebAR</span>
+                      </div>
+                      <div class="p-check"><i data-lucide="check"></i></div>
+                    </div>
+                    <div class="pipeline-step-item pending" id="pStep3">
+                      <div class="p-icon"><i data-lucide="palette"></i></div>
+                      <div class="p-text">
+                        <strong>3. Síntesis de Texturas PBR y Relieve</strong>
+                        <span>Albedo, Rugosidad y Mapa de Normales</span>
+                      </div>
+                      <div class="p-check"><i data-lucide="check"></i></div>
+                    </div>
+                    <div class="pipeline-step-item pending" id="pStep4">
+                      <div class="p-icon"><i data-lucide="check-circle-2"></i></div>
+                      <div class="p-text">
+                        <strong>4. Optimización de Formato .GLB / .USDZ</strong>
+                        <span>Listo para Google Model Viewer y Apple Quick Look</span>
+                      </div>
+                      <div class="p-check"><i data-lucide="check"></i></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3D Generated Confirmation (Shown once AI process completes) -->
+                <div class="ai-success-card hidden" id="aiSuccessCard">
+                  <div class="success-header-badge">
+                    <i data-lucide="check-circle-2"></i> ¡Modelo 3D Generado con Éxito!
+                  </div>
+
+                  <div class="preview-generated-3d-box">
+                    <model-viewer
+                      id="previewNewViewer"
+                      src=""
+                      alt="Modelo 3D Generado por IA"
+                      auto-rotate
+                      camera-controls
+                      shadow-intensity="1.5"
+                      exposure="1.0">
+                    </model-viewer>
+                    <div class="badge-ready-ar">
+                      <i data-lucide="box"></i> WebAR Compatible
+                    </div>
+                  </div>
+
+                  <div class="generated-stats-row">
+                    <div class="gen-stat">
+                      <span>Polígonos:</span>
+                      <strong>14.2k tris</strong>
+                    </div>
+                    <div class="gen-stat">
+                      <span>Tamaño GLB:</span>
+                      <strong>1.8 MB (Draco)</strong>
+                    </div>
+                    <div class="gen-stat">
+                      <span>Escala Real:</span>
+                      <strong id="genStatDimensions">13 × 9 × 9 cm</strong>
+                    </div>
+                  </div>
+
+                  <button class="btn-publish-final" id="btnPublishToMarketplace">
+                    <i data-lucide="rocket"></i>
+                    <span>Publicar en Artivio Marketplace</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+
+          <!-- ============================================== -->
+          <!-- VIEW 6: USER PROFILE & SETTINGS -->
+          <!-- ============================================== -->
+          <section class="view-section" id="viewProfile">
+            <div class="profile-header-card">
+              <div class="profile-avatar-wrap">
+                <img id="profileUserAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80" alt="Perfil">
+                <button class="edit-avatar-btn"><i data-lucide="camera"></i></button>
+              </div>
+              <h2 id="profileUserName">Elena Morales</h2>
+              <p class="profile-email" id="profileUserEmail">elena.creadora@artivio.app</p>
+              <div class="profile-role-tag" id="profileRoleTag">
+                <i data-lucide="sparkles"></i> Compradora & Exploradora AR
+              </div>
+            </div>
+
+            <div class="profile-menu-list">
+              <div class="menu-group-title">Mi Cuenta</div>
+              <button class="profile-menu-item" id="btnMenuOrders">
+                <div class="menu-item-icon"><i data-lucide="package"></i></div>
+                <div class="menu-item-text">
+                  <strong>Mis Pedidos y Compras</strong>
+                  <span>2 pedidos en camino</span>
+                </div>
+                <i data-lucide="chevron-right" class="menu-chevron"></i>
+              </button>
+
+              <button class="profile-menu-item" id="btnMenuSavedAr">
+                <div class="menu-item-icon"><i data-lucide="box"></i></div>
+                <div class="menu-item-text">
+                  <strong>Capturas y Diseños en AR</strong>
+                  <span>Ver fotos tomadas en mi espacio</span>
+                </div>
+                <i data-lucide="chevron-right" class="menu-chevron"></i>
+              </button>
+
+              <button class="profile-menu-item" id="btnMenuFavorites">
+                <div class="menu-item-icon"><i data-lucide="heart"></i></div>
+                <div class="menu-item-text">
+                  <strong>Artículos Guardados</strong>
+                  <span>5 favoritos</span>
+                </div>
+                <i data-lucide="chevron-right" class="menu-chevron"></i>
+              </button>
+
+              <div class="menu-group-title">Configuración AR & 3D</div>
+              <div class="settings-toggle-row">
+                <div class="toggle-text">
+                  <strong>Auto-calibración de escala 1:1</strong>
+                  <span>Usa sensor LiDAR / WebXR para precisión métrica</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" checked id="toggleLidar">
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <div class="settings-toggle-row">
+                <div class="toggle-text">
+                  <strong>Sombras en tiempo real (PBR)</strong>
+                  <span>Mejora el realismo en el visor y cámara AR</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" checked id="togglePbr">
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <button class="btn-switch-account-role" id="btnSwitchAccountRole">
+                <i data-lucide="repeat"></i> Cambiar a Modo Emprendedor
+              </button>
+            </div>
+          </section>
+
+        </main>
+
+        <!-- ============================================== -->
+        <!-- BOTTOM NAVIGATION BAR (MOBILE-FIRST) -->
+        <!-- ============================================== -->
+        <nav class="bottom-nav-bar" id="bottomNav">
+          <button class="nav-tab active" data-target="viewMarketplace" id="navTabMarket">
+            <div class="nav-icon-wrap">
+              <i data-lucide="compass"></i>
+            </div>
+            <span>Catálogo</span>
+          </button>
+
+          <button class="nav-tab" data-target="viewARCamera" id="navTabAR">
+            <div class="nav-icon-wrap">
+              <i data-lucide="box"></i>
+            </div>
+            <span>Visor AR</span>
+          </button>
+
+          <!-- Middle Standout Action Button: Publish 3D -->
+          <button class="nav-tab nav-tab-center" data-target="viewCreateProduct" id="navTabCreate">
+            <div class="center-bubble-btn">
+              <i data-lucide="plus"></i>
+            </div>
+            <span>Publicar</span>
+          </button>
+
+          <button class="nav-tab" data-target="viewSellerDashboard" id="navTabSeller">
+            <div class="nav-icon-wrap">
+              <i data-lucide="layout-dashboard"></i>
+            </div>
+            <span>Emprendedor</span>
+          </button>
+
+          <button class="nav-tab" data-target="viewProfile" id="navTabProfile">
+            <div class="nav-icon-wrap">
+              <i data-lucide="user"></i>
+            </div>
+            <span>Perfil</span>
+          </button>
+        </nav>
+
+        <!-- Toast Notifications Overlay -->
+        <div class="toast-notification" id="toastNotice">
+          <i data-lucide="check" class="toast-icon"></i>
+          <span class="toast-text" id="toastMessage">Acción completada</span>
+        </div>
+
+        <!-- Cart Modal Sheet -->
+        <div class="modal-backdrop hidden" id="cartModalBackdrop">
+          <div class="cart-modal-sheet" id="cartModalSheet">
+            <div class="cart-sheet-handle"></div>
+            <div class="cart-sheet-header">
+              <h3>Bolsa de Compras</h3>
+              <button class="close-modal-btn" id="btnCloseCartModal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="cart-items-container" id="cartItemsContainer">
+              <!-- Rendered via JS -->
+            </div>
+            <div class="cart-summary-footer">
+              <div class="cart-total-row">
+                <span>Total estimado:</span>
+                <strong id="cartTotalPrice">$0.00 USD</strong>
+              </div>
+              <button class="btn-checkout-now" id="btnCheckoutNow">
+                <i data-lucide="credit-card"></i> Pagar con Entrega Protegida
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Scripts -->
+  <script src="models.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
