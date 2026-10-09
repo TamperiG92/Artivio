@@ -2,6 +2,13 @@ import http.server
 import socketserver
 import os
 import socket
+import sys
+
+# Ensure UTF-8 output on Windows consoles
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
 
 PORT = 5000
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -22,6 +29,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 local_ip = get_local_ip()
 
+socketserver.TCPServer.allow_reuse_address = True
 with socketserver.TCPServer(("0.0.0.0", PORT), Handler) as httpd:
     print("=" * 60)
     print("  🚀 KREAVERSIA 3D MARKETPLACE - SERVIDOR ACTIVO")
