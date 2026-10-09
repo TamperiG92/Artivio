@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ARTIVIO 3D MARKETPLACE - STYLESHEET
+   KREAVERSIA 3D MARKETPLACE - STYLESHEET
    Aesthetics: Modern Artisanal, Terracotta Warmth, Clean Slate & Glassmorphism
    Mobile-First Architecture & Fluid Micro-Interactions
    ========================================================================== */
@@ -892,6 +892,7 @@ button:active {
   position: relative;
 }
 
+model-viewer#kreaversiaViewer,
 model-viewer#artivioViewer {
   width: 100%;
   height: 100%;

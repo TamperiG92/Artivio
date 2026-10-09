@@ -1,4 +1,4 @@
-# 🏺 Artivio 3D Marketplace
+# 🏺 Kreaversia 3D Marketplace
 
 **Plataforma interactiva para emprendedores y compradores potenciada con Inteligencia Artificial (IA), Visor 3D y Realidad Aumentada (WebAR).**
 

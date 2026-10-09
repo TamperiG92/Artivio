@@ -24,7 +24,7 @@ local_ip = get_local_ip()
 
 with socketserver.TCPServer(("0.0.0.0", PORT), Handler) as httpd:
     print("=" * 60)
-    print("  🚀 ARTIVIO 3D MARKETPLACE - SERVIDOR ACTIVO")
+    print("  🚀 KREAVERSIA 3D MARKETPLACE - SERVIDOR ACTIVO")
     print("=" * 60)
     print(f"  💻 En tu PC:     http://localhost:{PORT}")
     print(f"  📱 En tu Celular: http://{local_ip}:{PORT}")

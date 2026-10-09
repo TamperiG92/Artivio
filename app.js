@@ -1,5 +1,5 @@
 /**
- * ARTIVIO 3D MARKETPLACE - CORE APPLICATION LOGIC (app.js)
+ * KREAVERSIA 3D MARKETPLACE - CORE APPLICATION LOGIC (app.js)
  * Mobile-First Interactive WebApp with 3D Model-Viewer, AI Photogrammetry, and AR Experience
  */
 
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tabModePhoto: document.getElementById('tabModePhoto'),
     modelViewerWrapper: document.getElementById('modelViewerWrapper'),
     photoGalleryWrapper: document.getElementById('photoGalleryWrapper'),
-    artivioViewer: document.getElementById('artivioViewer'),
+    artivioViewer: document.getElementById('kreaversiaViewer') || document.getElementById('artivioViewer'),
     detailMainImage: document.getElementById('detailMainImage'),
     detailDimensionsText: document.getElementById('detailDimensionsText'),
     detailCreatorAvatar: document.getElementById('detailCreatorAvatar'),
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target === 'viewARCamera') {
           // If no product selected, pick the first one
           if (!state.selectedProduct) {
-            state.selectedProduct = window.Artivio3D.getProducts()[0];
+            state.selectedProduct = (window.Kreaversia3D || window.Artivio3D).getProducts()[0];
           }
           openARCamera(state.selectedProduct);
         } else {
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // VIEW 1: MARKETPLACE PRODUCTS RENDERING & FILTERS
   // ==========================================================================
   function renderProducts() {
-    const products = window.Artivio3D.getProducts();
+    const products = (window.Kreaversia3D || window.Artivio3D).getProducts();
     const query = state.searchQuery.toLowerCase().trim();
     const cat = state.activeCategory;
 
@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // AR Promo Banner Trigger
   elements.btnTryArDemo?.addEventListener('click', () => {
-    const firstProd = window.Artivio3D.getProducts()[0];
+    const firstProd = (window.Kreaversia3D || window.Artivio3D).getProducts()[0];
     openARCamera(firstProd);
   });
 
@@ -386,7 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // VIEW 2: PRODUCT DETAIL & 3D GOOGLE MODEL-VIEWER
   // ==========================================================================
   function openProductDetail(productId) {
-    const prod = window.Artivio3D.getProductById(productId);
+    const prod = (window.Kreaversia3D || window.Artivio3D).getProductById(productId);
     if (!prod) return;
 
     state.selectedProduct = prod;
@@ -512,8 +512,8 @@ document.addEventListener('DOMContentLoaded', () => {
   elements.btnShareProduct?.addEventListener('click', () => {
     if (navigator.share) {
       navigator.share({
-        title: state.selectedProduct?.name || 'Artivio 3D',
-        text: 'Mira esta pieza artesanal en 3D y Realidad Aumentada en Artivio.',
+        title: state.selectedProduct?.name || 'Kreaversia 3D',
+        text: 'Mira esta pieza artesanal en 3D y Realidad Aumentada en Kreaversia.',
         url: window.location.href
       }).catch(() => {});
     } else {
@@ -638,7 +638,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.arScene.remove(state.arCurrentObject);
     }
 
-    const newMesh = window.Artivio3D.createProceduralMesh(product.modelType || 'candle');
+    const newMesh = (window.Kreaversia3D || window.Artivio3D).createProceduralMesh(product.modelType || 'candle');
     state.arScale = 1.0;
     state.arPosition = { x: 0, y: -0.3, z: -1.5 };
     newMesh.position.set(state.arPosition.x, state.arPosition.y, state.arPosition.z);
@@ -742,7 +742,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // VIEW 4: SELLER DASHBOARD (PANEL EMPRENDEDOR)
   // ==========================================================================
   function renderSellerDashboard() {
-    const products = window.Artivio3D.getProducts();
+    const products = (window.Kreaversia3D || window.Artivio3D).getProducts();
     elements.sellerItemsCount.textContent = `${products.length} activos`;
 
     elements.sellerItemsList.innerHTML = products.map(p => `
@@ -776,7 +776,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.sellerItemsList.querySelectorAll('.btn-ar-item').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id');
-        const prod = window.Artivio3D.getProductById(id);
+        const prod = (window.Kreaversia3D || window.Artivio3D).getProductById(id);
         openARCamera(prod);
       });
     });
@@ -1029,7 +1029,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    window.Artivio3D.addProduct(newProduct);
+    (window.Kreaversia3D || window.Artivio3D).addProduct(newProduct);
     renderProducts();
     renderSellerDashboard();
 

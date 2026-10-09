@@ -1,9 +1,9 @@
 /**
- * ARTIVIO 3D MARKETPLACE - 3D & AR ENGINE (models.js)
+ * KREAVERSIA 3D MARKETPLACE - 3D & AR ENGINE (models.js)
  * Procedural 3D model synthesizers, WebGL fallbacks, and AR Camera interaction.
  */
 
-const Artivio3D = (() => {
+const Kreaversia3D = (() => {
   // Collection of realistic product definitions with verified 3D GLB assets & PBR fallbacks
   const PRODUCTS_DATA = [
     {
@@ -292,4 +292,5 @@ const Artivio3D = (() => {
   };
 })();
 
-window.Artivio3D = Artivio3D;
+window.Kreaversia3D = Kreaversia3D;
+window.Artivio3D = Kreaversia3D; // Backward compatibility alias
