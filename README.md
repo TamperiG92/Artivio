@@ -44,20 +44,33 @@
 
 ## 🚀 Cómo Ejecutar el Proyecto
 
-1. Abrir la carpeta del proyecto:
+1. **Clonar o descargar el repositorio:**
    ```bash
-   cd "C:\Users\dell\.gemini\antigravity-ide\scratch\artivio-3d-marketplace"
+   git clone https://github.com/TamperiG92/Artivio.git
+   cd Artivio
    ```
 
-2. Iniciar el servidor local:
-   ```bash
-   python server.py
-   ```
-   *O alternativamente con cualquier servidor HTTP como `npx serve` o la extensión Live Server de VS Code.*
+2. **Iniciar el servidor local:**
+   - **Con Python:**
+     ```bash
+     python server.py
+     ```
+   - **O con Node.js (npx):**
+     ```bash
+     npx serve .
+     ```
+   - **O con VS Code:**
+     Haz clic derecho en `index.html` y selecciona **"Open with Live Server"**.
 
-3. Abrir en el navegador (en PC o en el celular):
+3. **Abrir en el navegador (PC o Móvil):**
    ```
    http://127.0.0.1:5000/index.html
    ```
 
-4. **Para probar en el teléfono celular real:** Conecta el móvil a la misma red Wi-Fi y abre `http://<IP-DE-TU-PC>:5000/index.html`.
+4. **📱 Para probar en tu teléfono celular real (Realidad Aumentada):**
+   - Asegúrate de que tu celular y tu PC estén conectados a la **misma red Wi-Fi**.
+   - En el navegador de tu celular (Chrome en Android o Safari en iOS), abre:
+     ```
+     http://<IP-DE-TU-PC>:5000/index.html
+     ```
+   *(La terminal al ejecutar `python server.py` te mostrará la IP exacta y el enlace directo).*
